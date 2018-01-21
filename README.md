@@ -1,5 +1,10 @@
 # Grape::Swagger::Jsonapi::Resources
 
+This gem is intended for Rails projects where there is a requirement to use JSONAPI formatted responses via the 
+[Grape gem](https://github.com/ruby-grape/grape) and [JSONAPI::Resources gem](https://github.com/cerebris/jsonapi-resources),
+which will 
+auto generate [Swagger](https://swagger.io/) documentation that can be consumed via an instance of [Swagger UI](https://swagger.io/swagger-ui/).
+
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -35,7 +40,7 @@ end
 Define your resources as per the instructions for the [jsonapi-resources](https://github.com/cerebris/jsonapi-resources) gem:
 
 ```
-# /app/resources/stock_order_respource.rb
+# /app/resources/stock_order_resource.rb
 
 class StockOrderResource < JSONAPI::Resource
   attribute :stock_order_number, type: :string
@@ -67,6 +72,12 @@ get do
 end
 ```
 
+## Known issues
+
+* The `included` section that sideloaded models are placed into does not render correctly in the Swagger UI example 
+responses. This appears to be due to the `anyOf` array item definition not being handled
+** [Issue describing the problem](https://github.com/swagger-api/swagger-ui/issues/3859)
+** [PR with possible fix](https://github.com/swagger-api/swagger-ui/pull/4136)
 
 
 ## Development
