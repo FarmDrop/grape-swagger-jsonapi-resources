@@ -7,21 +7,17 @@ Gem::Specification.new do |spec|
   spec.name          = "grape-swagger-jsonapi-resources"
   spec.version       = Grape::Swagger::Jsonapi::Resources::VERSION
   spec.authors       = ["Matt Gibson"]
-  spec.email         = ["matt@farmdrop.com"]
 
-  spec.summary       = %q{TODO: Write a short summary, because RubyGems requires one.}
-  spec.description   = %q{TODO: Write a longer description or delete this line.}
-  spec.homepage      = "TODO: Put your gem's website or public repo URL here."
+  spec.summary       = <<~TEXT
+                         This gem will allow you to use JSONAPI::Resources resource definition classes with Grape
+                         and have the correct Swagger docs generated from them.
+                       TEXT
+  spec.description   = <<~TEXT
+                         The use case is that you are using the Grape gem to define your API, want to use JSONAPI,
+                         and want to have Swagger docs for the endpoints.
+                       TEXT
+  spec.homepage      = "https://github.com/mattgibson/grape-swagger-jsonapi-resources"
   spec.license       = "MIT"
-
-  # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
-  # to allow pushing to a single host or delete this section to allow pushing to any host.
-  if spec.respond_to?(:metadata)
-    spec.metadata["allowed_push_host"] = "TODO: Set to 'http://mygemserver.com'"
-  else
-    raise "RubyGems 2.0 or newer is required to protect against " \
-      "public gem pushes."
-  end
 
   spec.files         = `git ls-files -z`.split("\x0").reject do |f|
     f.match(%r{^(test|spec|features)/})
@@ -29,6 +25,10 @@ Gem::Specification.new do |spec|
   spec.bindir        = "exe"
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
+
+  spec.add_dependency "grape", "~> 1.0"
+  spec.add_dependency "grape-swagger", "~> 0.27"
+  spec.add_dependency "grape-jsonapi-resources", "~> 0.0.7"
 
   spec.add_development_dependency "bundler", "~> 1.16"
   spec.add_development_dependency "rake", "~> 10.0"
