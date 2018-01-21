@@ -1,9 +1,5 @@
 # Grape::Swagger::Jsonapi::Resources
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/grape/swagger/jsonapi/resources`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
-
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -22,7 +18,56 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+Add the formatter from `JSONAPI::Resources` to your API:
+
+```
+module V1
+  class StockOrders < Grape::API
+    format :json
+    formatter :json, Grape::Formatter::JSONAPIResources
+    content_type :json, "application/vnd.api+json"
+    
+    # ...
+  end
+end
+```
+
+Define your resources as per the instructions for the [jsonapi-resources](https://github.com/cerebris/jsonapi-resources) gem:
+
+```
+# /app/resources/stock_order_respource.rb
+
+class StockOrderResource < JSONAPI::Resource
+  attribute :stock_order_number, type: :string
+  attribute :delivery_date, type: :integer
+  attribute :discount_type, type: :string
+  attribute :discount_amount, type: :integer
+  attribute :created_at, type: :string
+  attribute :updated_at, type: :string
+
+  has_many :order_items
+  has_many :purchase_orders
+
+  has_one :hub
+  has_one :user
+  has_one :merchant
+end
+
+```
+
+Tell the API that the response will use your resource as an entity, and which models you want to have sideloaded in the
+`included` section of the response:
+
+```
+desc "Returns a single stock order" do
+  entity StockOrderResource
+end
+get do
+  render StockOrder.find(params[:id]), include: %w(purchase_orders order_items)
+end
+```
+
+
 
 ## Development
 
@@ -32,7 +77,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/grape-swagger-jsonapi-resources. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
+Bug reports and pull requests are welcome on GitHub at https://github.com/mattgibson/grape-swagger-jsonapi-resources. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
 
 ## License
 
@@ -40,4 +85,4 @@ The gem is available as open source under the terms of the [MIT License](https:/
 
 ## Code of Conduct
 
-Everyone interacting in the Grape::Swagger::Jsonapi::Resources project’s codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/[USERNAME]/grape-swagger-jsonapi-resources/blob/master/CODE_OF_CONDUCT.md).
+Everyone interacting in the Grape::Swagger::Jsonapi::Resources project’s codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/mattgibson/grape-swagger-jsonapi-resources/blob/master/CODE_OF_CONDUCT.md).
