@@ -67,7 +67,7 @@ module Grape
       models = Grape::Swagger::Jsonapi::Resources::Parser.new(model, self).included
       refs = models.map do |m|
         {
-          '$ref' => "#/definitions/#{expose_params_from_model(m) }"
+          '$ref' => "#/definitions/#{expose_params_from_model(m)}"
         }
       end
       {
