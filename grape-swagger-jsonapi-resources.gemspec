@@ -26,8 +26,10 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
+  spec.add_dependency "rails", ">= 4.2" # jsonapi-resources needs this but doesn't declare it
   spec.add_dependency "grape", "~> 1.0"
   spec.add_dependency "grape-swagger", "~> 0.27"
+  spec.add_dependency "jsonapi-resources", "~> 0.9.0"
   spec.add_dependency "grape-jsonapi-resources", "~> 0.0.7"
 
   spec.add_development_dependency "bundler", "~> 1.16"
