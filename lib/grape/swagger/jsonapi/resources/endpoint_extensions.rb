@@ -61,7 +61,18 @@ module Grape
     end
 
     def included_models(model)
-      Grape::Swagger::Jsonapi::Resources::Parser.new(model, self).included
+      models = Grape::Swagger::Jsonapi::Resources::Parser.new(model, self).included
+      refs = models.map do |m|
+        {
+          '$ref' => "#/definitions/#{expose_params_from_model(m) }"
+        }
+      end
+      {
+        type: :array,
+        items: {
+          anyOf: refs
+        }
+      }
     end
   end
 end

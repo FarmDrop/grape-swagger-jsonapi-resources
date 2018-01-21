@@ -21,12 +21,7 @@ module Grape
           # Currently doesn't display in swagger UI properly. Schema is correct though.
           # https://github.com/swagger-api/swagger-ui/issues/3859
           def included
-            {
-              type: :array,
-              items: {
-                anyOf: included_resource_models
-              }
-            }
+            included_resource_models
           end
 
           private
@@ -100,10 +95,7 @@ module Grape
           end
 
           def included_resource_models
-            main_model._relationships.values.map do |reflection|
-              relationship_model = reflection.parent_resource
-              model_data_schema(relationship_model)
-            end
+            main_model._relationships.values.map(&:resource_klass)
           end
         end
       end
