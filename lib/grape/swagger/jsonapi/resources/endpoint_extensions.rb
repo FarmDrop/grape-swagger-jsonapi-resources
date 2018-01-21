@@ -60,6 +60,9 @@ module Grape
       end
     end
 
+    # This uses anyOf, but swagger UI seems not to display it properly and you just get an empty object with null in it.
+    # https://github.com/swagger-api/swagger-ui/issues/3859
+    # https://github.com/swagger-api/swagger-ui/pull/4136
     def included_models(model)
       models = Grape::Swagger::Jsonapi::Resources::Parser.new(model, self).included
       refs = models.map do |m|
