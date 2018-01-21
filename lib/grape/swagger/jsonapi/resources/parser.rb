@@ -15,34 +15,45 @@ module Grape
           end
 
           def call
+            model_properties(main_model)
+          end
+
+          # Currently doesn't display in swagger UI properly. Schema is correct though.
+          # https://github.com/swagger-api/swagger-ui/issues/3859
+          def included
             {
-              data: model_data_schema(main_model),
-            }.tap do |output|
-              output[:included] = included if main_model._relationships.any?
-            end
+              type: :array,
+              items: {
+                anyOf: included_resource_models
+              }
+            }
           end
 
           private
 
+          def model_properties(the_model)
+            {
+              type: {
+                type: :string
+              },
+              id: {
+                type: :integer
+              },
+              attributes: {
+                type: :object,
+                properties: attributes_schema(the_model),
+              },
+              relationships: {
+                type: :object,
+                properties: relationships_schema(the_model),
+              }
+            }
+          end
+
           def model_data_schema(the_model)
             {
               type: :object,
-              properties: {
-                type: {
-                  type: :string
-                },
-                id: {
-                  type: :integer
-                },
-                attributes: {
-                  type: :object,
-                  properties: attributes_schema(the_model),
-                },
-                relationships: {
-                  type: :object,
-                  properties: relationships_schema(the_model),
-                }
-              }
+              properties: model_properties(the_model)
             }
           end
 
@@ -86,17 +97,6 @@ module Grape
                 }
               }
             end
-          end
-
-          # Currently doesn't display in swagger UI properly. Schema is correct though.
-          # https://github.com/swagger-api/swagger-ui/issues/3859
-          def included
-            {
-              type: :array,
-              items: {
-                anyOf: included_resource_models
-              }
-            }
           end
 
           def included_resource_models
