@@ -3,7 +3,7 @@ require_relative 'boot'
 require 'rails/all'
 
 Bundler.require(*Rails.groups)
-require "your_engine_name"
+require "grape-jsonapi-resources"
 
 module Dummy
   class Application < Rails::Application
