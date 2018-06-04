@@ -63,6 +63,12 @@ module Grape
             json_output["data"] = data.sort_by { |d| sorted_primary_ids.index(d["id"]) }
           end
 
+          # TODO add links object
+
+          # TODO get the base url
+
+          # TODO pagination here
+
           json_output.to_json
         end
 

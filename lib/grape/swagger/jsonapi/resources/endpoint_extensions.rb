@@ -3,7 +3,7 @@
 module Grape
   # This is for inclusion into Grape::Endpoint after the stuff from grape-swagger
   class Endpoint
-    alias_method :original_response_object, :response_object
+    alias original_response_object response_object
 
     def response_object(route)
       if endpoint_uses_jsonapi?
@@ -60,7 +60,8 @@ module Grape
       end
     end
 
-    # This uses anyOf, but swagger UI seems not to display it properly and you just get an empty object with null in it.
+    # This uses anyOf, but swagger UI seems not to display it properly and you
+    # just get an empty object with null in it.
     # https://github.com/swagger-api/swagger-ui/issues/3859
     # https://github.com/swagger-api/swagger-ui/pull/4136
     def included_models(model)
