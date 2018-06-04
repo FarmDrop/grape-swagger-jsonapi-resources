@@ -41,7 +41,10 @@ RSpec.describe Grape::Formatter::JsonApiPagination do
                                          Merchant.new(12, 'Purton')
                                        ]).page(1).per(2)
     fake_env = {
-      'api.endpoint' => double('endpoint', namespace_inheritable: base_url)
+      'api.endpoint' => double('endpoint', namespace_inheritable: base_url),
+      'REQUEST_URI' => '/merchants?page[number]=1&page[size]=2',
+      'PATH_INFO' => '/merchants',
+      'QUERY_STRING' => 'page[number]=1&page[size]=2'
     }
     actual = described_class.call(resource, fake_env)
     expected = {
@@ -58,7 +61,7 @@ RSpec.describe Grape::Formatter::JsonApiPagination do
         }
       ],
       links: {
-        self: 'http://localhost:3000/merchants/12?page[number]=1&page[size]=2'
+        self: 'http://localhost:3000/merchants?page[number]=1&page[size]=2'
       }
     }
 
