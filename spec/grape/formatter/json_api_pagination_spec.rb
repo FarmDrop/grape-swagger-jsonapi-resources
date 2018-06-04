@@ -12,59 +12,93 @@ end
 RSpec.describe Grape::Formatter::JsonApiPagination do
   let(:base_url) { 'http://localhost:3000' }
 
-  it 'provides no pagination links if there is no pagination supplied' do
-    resource = [Merchant.new(12, 'Purton')]
-    fake_env = {
-      'api.endpoint' => double('endpoint', namespace_inheritable: base_url )
-    }
-    actual = described_class.call(resource, fake_env)
-    expected = {
-      data: [
-        {
-          id:'12',
-          type: 'merchants',
-          links: {
-            self: 'http://localhost:3000/merchants/12'
-          },
-          attributes: {
-            name: 'Purton'
+  context 'when there is no pagination supplied' do
+    it 'provides no pagination links' do
+      resource = [Merchant.new(12, 'Purton')]
+      fake_env = {
+        'api.endpoint' => double('endpoint', namespace_inheritable: base_url)
+      }
+      actual = described_class.call(resource, fake_env)
+      expected = {
+        data: [
+          {
+            id: '12',
+            type: 'merchants',
+            links: {
+              self: 'http://localhost:3000/merchants/12'
+            },
+            attributes: {
+              name: 'Purton'
+            }
           }
-        }
-      ]
-    }
+        ]
+      }
 
-    expect(JSON.parse(actual)).to eq expected.as_json
+      expect(JSON.parse(actual)).to eq expected.as_json
+    end
   end
 
-  it 'provides self pagination links if there is pagination supplied' do
-    resource = Kaminari.paginate_array([
-                                         Merchant.new(12, 'Purton')
-                                       ]).page(1).per(2)
-    fake_env = {
-      'api.endpoint' => double('endpoint', namespace_inheritable: base_url),
-      'REQUEST_URI' => '/merchants?page[number]=1&page[size]=2',
-      'PATH_INFO' => '/merchants',
-      'QUERY_STRING' => 'page[number]=1&page[size]=2'
-    }
-    actual = described_class.call(resource, fake_env)
-    expected = {
-      data: [
-        {
-          id: '12',
-          type: 'merchants',
-          links: {
-            self: 'http://localhost:3000/merchants/12'
-          },
-          attributes: {
-            name: 'Purton'
-          }
-        }
-      ],
-      links: {
-        self: 'http://localhost:3000/merchants?page[number]=1&page[size]=2'
-      }
-    }
+  context 'with a paginated resource supplied' do
+    let(:pagination_links) { JSON.parse(described_class.call(resource, fake_env))["links"] }
 
-    expect(JSON.parse(actual)).to eq expected.as_json
+    context 'when there is only one page' do
+      let(:fake_env) do
+        {
+          'api.endpoint' => double('endpoint', namespace_inheritable: base_url),
+          'REQUEST_URI' => '/merchants?page[number]=1&page[size]=2',
+          'PATH_INFO' => '/merchants',
+          'QUERY_STRING' => 'page[number]=1&page[size]=2'
+        }
+      end
+      let(:resource) do
+        Kaminari.paginate_array(
+          [
+            Merchant.new(12, 'Purton')
+          ]
+        ).page(1).per(2)
+      end
+
+      it 'provides pagination links' do
+        actual = described_class.call(resource, fake_env)
+        expected = {
+          self: 'http://localhost:3000/merchants?page[number]=1&page[size]=2',
+          first: 'http://localhost:3000/merchants?page[number]=1&page[size]=2',
+          last: 'http://localhost:3000/merchants?page[number]=1&page[size]=2'
+        }
+
+        expect(pagination_links).to eq expected.as_json
+      end
+    end
+
+    context 'when there are multiple pages' do
+      let(:fake_env) do
+        {
+          'api.endpoint' => double('endpoint', namespace_inheritable: base_url),
+          'REQUEST_URI' => '/merchants?page[number]=2&page[size]=2',
+          'PATH_INFO' => '/merchants',
+          'QUERY_STRING' => 'page[number]=2&page[size]=2'
+        }
+      end
+      let(:resource) do
+        Kaminari.paginate_array(
+          [
+            Merchant.new(12, 'Purton'),
+            Merchant.new(13, 'Anspach'),
+            Merchant.new(14, 'Fourpure'),
+            Merchant.new(15, 'Naty'),
+            Merchant.new(16, 'Ranas'),
+            Merchant.new(17, 'Longmans'),
+          ]
+        ).page(2).per(2)
+      end
+
+      it 'provides a pagination link for the first page' do
+        expect(pagination_links["first"]).to eq 'http://localhost:3000/merchants?page[number]=1&page[size]=2'
+      end
+
+      it 'provides a pagination link for the last page' do
+        expect(pagination_links["last"]).to eq 'http://localhost:3000/merchants?page[number]=3&page[size]=2'
+      end
+    end
   end
 end

@@ -55,11 +55,19 @@ module Grape
           if resource.respond_to?(:page)
             json_output["links"] ||= {}
 
-            json_output["links"]["self"] = "#{jsonapi_options[:base_url]}#{env['REQUEST_URI']}"
+            original_uri = URI("#{jsonapi_options[:base_url]}#{env['REQUEST_URI']}")
+            json_output["links"]["self"] = original_uri.to_s
 
-            # TODO get the base url
+            original_query = Rack::Utils.parse_query(original_uri.query)
 
-            # TODO pagination here
+            last_page_query = original_query.merge(number: resource.total_pages)
+            last_page_uri = original_uri.dup.tap { |uri| uri.query = Rack::Utils.build_query(last_page_query).to_s }
+            json_output["links"]["last"] = last_page_uri.to_s
+
+            first_page_query = original_query.merge(number: resource.total_pages)
+            first_page_uri = original_uri.dup.tap { |uri| uri.query = Rack::Utils.build_query(first_page_query) }
+            json_output["links"]["last"] = first_page_uri.to_s
+
           end
 
           json_output.to_json
