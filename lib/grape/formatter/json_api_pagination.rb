@@ -60,17 +60,34 @@ module Grape
 
             original_query = Rack::Utils.parse_query(original_uri.query)
 
-            last_page_query = original_query.merge(number: resource.total_pages)
-            last_page_uri = original_uri.dup.tap { |uri| uri.query = Rack::Utils.build_query(last_page_query).to_s }
+            last_page_query = original_query.merge('page[number]' => resource.total_pages)
+            last_page_uri = original_uri.dup.tap { |uri| uri.query = build_query(last_page_query) }
             json_output["links"]["last"] = last_page_uri.to_s
 
-            first_page_query = original_query.merge(number: resource.total_pages)
-            first_page_uri = original_uri.dup.tap { |uri| uri.query = Rack::Utils.build_query(first_page_query) }
-            json_output["links"]["last"] = first_page_uri.to_s
+            first_page_query = original_query.merge('page[number]' => 1)
+            first_page_uri = original_uri.dup.tap { |uri| uri.query = build_query(first_page_query) }
+            json_output["links"]["first"] = first_page_uri.to_s
 
+            prev_page_query = original_query.merge('page[number]' => [1, resource.current_page.pred].max )
+            prev_page_uri = original_uri.dup.tap { |uri| uri.query = build_query(prev_page_query) }
+            json_output["links"]["prev"] = prev_page_uri.to_s
+
+            next_page_query = original_query.merge('page[number]' => [resource.total_pages, resource.current_page.succ].min)
+            next_page_uri = original_uri.dup.tap { |uri| uri.query = build_query(next_page_query) }
+            json_output["links"]["next"] = next_page_uri.to_s
           end
 
           json_output.to_json
+        end
+
+        def build_query(params)
+          params.map { |k, v|
+            if v.class == Array
+              build_query(v.map { |x| [k, x] })
+            else
+              v.nil? ? k : "#{k}=#{v}"
+            end
+          }.join("&")
         end
 
         def build_options_from_endpoint(endpoint)

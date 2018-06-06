@@ -1,2 +1,7 @@
 AllCops:
   TargetRubyVersion: 2.5
+
+Metrics/BlockLength:
+  Exclude:
+    - 'Gemfile'
+    - 'spec/**/*.rb'

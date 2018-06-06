@@ -59,7 +59,6 @@ RSpec.describe Grape::Formatter::JsonApiPagination do
       end
 
       it 'provides pagination links' do
-        actual = described_class.call(resource, fake_env)
         expected = {
           self: 'http://localhost:3000/merchants?page[number]=1&page[size]=2',
           first: 'http://localhost:3000/merchants?page[number]=1&page[size]=2',
@@ -71,33 +70,45 @@ RSpec.describe Grape::Formatter::JsonApiPagination do
     end
 
     context 'when there are multiple pages' do
-      let(:fake_env) do
-        {
-          'api.endpoint' => double('endpoint', namespace_inheritable: base_url),
-          'REQUEST_URI' => '/merchants?page[number]=2&page[size]=2',
-          'PATH_INFO' => '/merchants',
-          'QUERY_STRING' => 'page[number]=2&page[size]=2'
-        }
-      end
-      let(:resource) do
-        Kaminari.paginate_array(
-          [
-            Merchant.new(12, 'Purton'),
-            Merchant.new(13, 'Anspach'),
-            Merchant.new(14, 'Fourpure'),
-            Merchant.new(15, 'Naty'),
-            Merchant.new(16, 'Ranas'),
-            Merchant.new(17, 'Longmans'),
-          ]
-        ).page(2).per(2)
-      end
+      context 'when we are on the middle page' do
+        let(:fake_env) do
+          {
+            'api.endpoint' => double('endpoint', namespace_inheritable: base_url),
+            'REQUEST_URI' => '/merchants?page[number]=2&page[size]=2',
+            'PATH_INFO' => '/merchants',
+            'QUERY_STRING' => 'page[number]=2&page[size]=2'
+          }
+        end
+        let(:resource) do
+          Kaminari.paginate_array(
+            [
+              Merchant.new(12, 'Purton'),
+              Merchant.new(13, 'Anspach'),
+              Merchant.new(14, 'Fourpure'),
+              Merchant.new(15, 'Naty'),
+              Merchant.new(16, 'Ranas'),
+              Merchant.new(17, 'Longmans'),
+            ]
+          ).page(2).per(2)
+        end
 
-      it 'provides a pagination link for the first page' do
-        expect(pagination_links["first"]).to eq 'http://localhost:3000/merchants?page[number]=1&page[size]=2'
-      end
+        it 'provides a pagination link for the first page' do
+          expect(pagination_links["first"]).to eq 'http://localhost:3000/merchants?page[number]=1&page[size]=2'
+        end
 
-      it 'provides a pagination link for the last page' do
-        expect(pagination_links["last"]).to eq 'http://localhost:3000/merchants?page[number]=3&page[size]=2'
+        it 'provides a pagination link for the last page' do
+          link = pagination_links["last"]
+          expect(link).to eq 'http://localhost:3000/merchants?page[number]=3&page[size]=2'
+        end
+
+        it 'provides a pagination link for the previous page' do
+          expect(pagination_links["prev"]).to eq 'http://localhost:3000/merchants?page[number]=1&page[size]=2'
+        end
+
+        it 'provides a pagination link for the next page' do
+          link = pagination_links["next"]
+          expect(link).to eq 'http://localhost:3000/merchants?page[number]=3&page[size]=2'
+        end
       end
     end
   end
