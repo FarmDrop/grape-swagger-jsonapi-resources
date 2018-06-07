@@ -1,2 +1,87 @@
 AllCops:
   TargetRubyVersion: 2.5
+  Exclude:
+    - "bin/**/*"
+    - "db/**/*"
+    - "engines/*/db/**/*"
+    - "engines/*/spec/test_app/**/*"
+
+Metrics/BlockLength:
+  Exclude:
+    - 'Gemfile'
+    - 'spec/**/*.rb'
+
+Style/Documentation:
+  Enabled: false
+
+LineLength:
+   Max: 120
+
+Rails:
+  Enabled: true
+
+Layout/MultilineOperationIndentation:
+  EnforcedStyle: indented
+
+Layout/MultilineMethodCallIndentation:
+  EnforcedStyle: indented
+
+Style/Lambda:
+  Enabled: false
+
+Style/StringLiterals:
+  EnforcedStyle: "double_quotes"
+
+Style/NumericPredicate:
+  Enabled: false
+
+Style/FrozenStringLiteralComment:
+  Enabled: false
+
+# Removing Blocks Cop for RSpec so we can do expect { ... }
+Style/BlockDelimiters:
+  Exclude:
+    - 'spec/**/*'
+
+Style/SymbolArray:
+  Enabled: false
+
+# DSLs are allowed long blocks.
+Metrics/BlockLength:
+  Enabled: false
+
+Rails/HttpPositionalArguments:
+  Enabled: false
+
+Style/TrailingCommaInLiteral:
+  Enabled: false
+
+Rails/SkipsModelValidations:
+  Enabled: false
+
+# Can remove when bbatsov/rubocop#4189 is released
+Lint/AmbiguousBlockAssociation:
+  Enabled: false
+
+# Let us line up case/if statements how we want
+Lint/EndAlignment:
+    Enabled: false
+
+Layout/CaseIndentation:
+  Enabled: false
+
+# This is buggy https://github.com/bbatsov/rubocop/issues/4321
+Style/RedundantSelf:
+  Enabled: false
+
+Rails/DynamicFindBy:
+  Whitelist:
+    - find_by_database
+    - find_by_cache
+    - find_by_number
+
+Security/YAMLLoad:
+  Enabled: false
+
+Layout/AlignHash:
+  EnforcedLastArgumentHashStyle: ignore_implicit
