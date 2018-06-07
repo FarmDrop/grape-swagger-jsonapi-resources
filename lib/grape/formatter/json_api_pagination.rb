@@ -131,7 +131,7 @@ module Grape
       end
 
       def jsonapi_options
-        @json_api_options ||= build_options_from_endpoint(endpoint)
+        @json_api_options ||= build_options_from_endpoint
                               .merge!(env['jsonapi_options'] || {})
       end
 
@@ -157,10 +157,10 @@ module Grape
         end.join('&')
       end
 
-      def build_options_from_endpoint(endpoint)
+      def build_options_from_endpoint
         options = {}
-        if endpoint.namespace_inheritable(:jsonapi_base_url)
-          options[:base_url] = endpoint.namespace_inheritable(:jsonapi_base_url)
+        if env['HTTP_ORIGIN']
+          options[:base_url] = env['HTTP_ORIGIN']
         end
         options
       end
