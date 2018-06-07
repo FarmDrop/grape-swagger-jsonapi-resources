@@ -23,7 +23,8 @@ RSpec.describe Grape::Formatter::JsonApiPagination do
   let(:fake_endpoint) { double("endpoint", namespace_inheritable: base_url) }
   let(:fake_env) do
     {
-      "api.endpoint" => fake_endpoint
+      "api.endpoint" => fake_endpoint,
+      "HTTP_ORIGIN" => "http://localhost:3000",
     }
   end
   let(:resource) do
@@ -124,7 +125,8 @@ RSpec.describe Grape::Formatter::JsonApiPagination do
             "api.endpoint" => fake_endpoint,
             "REQUEST_URI" => "/merchants?page[number]=1&page[size]=2",
             "PATH_INFO" => "/merchants",
-            "QUERY_STRING" => "page[number]=1&page[size]=2"
+            "QUERY_STRING" => "page[number]=1&page[size]=2",
+            "HTTP_ORIGIN" => "http://localhost:3000",
           }
         end
         let(:resource) do
@@ -153,7 +155,8 @@ RSpec.describe Grape::Formatter::JsonApiPagination do
               "api.endpoint" => fake_endpoint,
               "REQUEST_URI" => "/merchants?page[number]=2&page[size]=2",
               "PATH_INFO" => "/merchants",
-              "QUERY_STRING" => "page[number]=2&page[size]=2"
+              "QUERY_STRING" => "page[number]=2&page[size]=2",
+              "HTTP_ORIGIN" => "http://localhost:3000",
             }
           end
           let(:resource) do

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "link"
+
 module Grape
   module Formatter
     # This an extended and refactored version of the JSONAPI resources formatter
@@ -46,10 +48,8 @@ module Grape
 
         add_link_to_json_output("self", original_uri)
 
-        last_page_uri = build_query_for_different_page(resource.total_pages)
-        add_link_to_json_output("last", last_page_uri)
-        first_page_uri = build_query_for_different_page(1)
-        add_link_to_json_output("first", first_page_uri)
+        add_page_link_to_json_output("last", resource.total_pages)
+        add_page_link_to_json_output("first", 1)
 
         add_previous_page_link if current_page_is_not_the_first_page
         add_next_page_link if current_page_is_not_the_last_page
@@ -57,18 +57,12 @@ module Grape
 
       def add_next_page_link
         next_or_last_page_number = [resource.total_pages, resource.current_page.succ].min
-        next_page_uri = build_query_for_different_page(next_or_last_page_number)
-        add_link_to_json_output("next", next_page_uri)
+        add_page_link_to_json_output("next", next_or_last_page_number)
       end
 
       def add_previous_page_link
         first_or_previous_page_number = [1, resource.current_page.pred].max
-        prev_page_uri = build_query_for_different_page(first_or_previous_page_number)
-        add_link_to_json_output("prev", prev_page_uri)
-      end
-
-      def build_query_for_different_page(query)
-        original_uri.dup.tap { |uri| uri.query = build_query(uri_with_page_number(query)) }
+        add_page_link_to_json_output("prev", first_or_previous_page_number)
       end
 
       def current_page_is_not_the_first_page
@@ -81,6 +75,11 @@ module Grape
 
       def add_link_to_json_output(link_name, uri)
         json_output["links"][link_name] = uri.to_s
+      end
+
+      def add_page_link_to_json_output(link_name, page_number)
+        link = Link.new(original_uri, "page[number]" => page_number).to_s
+        add_link_to_json_output(link_name, link)
       end
 
       def resource_class
@@ -135,24 +134,6 @@ module Grape
 
       def original_uri
         URI("#{jsonapi_options[:base_url]}#{env['REQUEST_URI']}")
-      end
-
-      def original_query
-        Rack::Utils.parse_query(original_uri.query)
-      end
-
-      def uri_with_page_number(page_number)
-        original_query.merge("page[number]" => page_number)
-      end
-
-      def build_query(params)
-        params.map do |k, v|
-          if v.class == Array
-            build_query(v.map { |x| [k, x] })
-          else
-            v.nil? ? k : "#{k}=#{v}"
-          end
-        end.join("&")
       end
 
       def build_options_from_endpoint
