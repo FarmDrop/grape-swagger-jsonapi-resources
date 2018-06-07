@@ -9,12 +9,12 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Matt Gibson"]
 
   spec.summary       = <<~TEXT
-                         This gem will allow you to use JSONAPI::Resources resource definition classes with Grape
-                         and have the correct Swagger docs generated from them.
+    This gem will allow you to use JSONAPI::Resources resource definition classes with Grape
+    and have the correct Swagger docs generated from them.
                        TEXT
   spec.description   = <<~TEXT
-                         The use case is that you are using the Grape gem to define your API, want to use JSONAPI,
-                         and want to have Swagger docs for the endpoints.
+    The use case is that you are using the Grape gem to define your API, want to use JSONAPI,
+    and want to have Swagger docs for the endpoints.
                        TEXT
   spec.homepage      = "https://github.com/mattgibson/grape-swagger-jsonapi-resources"
   spec.license       = "MIT"
@@ -26,16 +26,16 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  spec.add_dependency "rails", ">= 4.2" # jsonapi-resources needs this but doesn't declare it
   spec.add_dependency "grape", "~> 1.0"
+  spec.add_dependency "grape-jsonapi-resources", "~> 0.0.7"
   spec.add_dependency "grape-swagger", "~> 0.27"
   spec.add_dependency "jsonapi-resources", "~> 0.9.0"
-  spec.add_dependency "grape-jsonapi-resources", "~> 0.0.7"
+  spec.add_dependency "rails", ">= 4.2" # jsonapi-resources needs this but doesn't declare it
 
   spec.add_development_dependency "bundler", "~> 1.16"
+  spec.add_development_dependency "byebug"
+  spec.add_development_dependency "kaminari"
   spec.add_development_dependency "rake", "~> 10.0"
   spec.add_development_dependency "rspec", "~> 3.0"
   spec.add_development_dependency "rubocop"
-  spec.add_development_dependency "kaminari"
-  spec.add_development_dependency "byebug"
 end

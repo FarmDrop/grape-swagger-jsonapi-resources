@@ -17,11 +17,9 @@ module Grape
       def serialize_resource(resource, env)
         @env = env
         @resource = resource
-        @endpoint = env['api.endpoint']
+        @endpoint = env["api.endpoint"]
 
-        if resource_class.nil?
-          return blank_resource_response(jsonapi_options, resource)
-        end
+        return blank_resource_response(jsonapi_options, resource) if resource_class.nil?
 
         build_main_json_output_data
         add_pagination_links if resource_supports_pagination?
@@ -34,8 +32,8 @@ module Grape
       # Ensure sort order is maintained, serialize_to_hash can reorder objects if
       # objects of the array are of different types (polymorphic cases)
       def build_main_json_output_data
-        if sorted_primary_ids && (data = json_output['data']).present?
-          json_output['data'] = data.sort_by { |d| sorted_primary_ids.index(d['id']) }
+        if sorted_primary_ids && (data = json_output["data"]).present?
+          json_output["data"] = data.sort_by { |d| sorted_primary_ids.index(d["id"]) }
         end
       end
 
@@ -44,14 +42,14 @@ module Grape
       end
 
       def add_pagination_links
-        json_output['links'] ||= {}
+        json_output["links"] ||= {}
 
-        add_link_to_json_output('self', original_uri)
+        add_link_to_json_output("self", original_uri)
 
         last_page_uri = build_query_for_different_page(resource.total_pages)
-        add_link_to_json_output('last', last_page_uri)
+        add_link_to_json_output("last", last_page_uri)
         first_page_uri = build_query_for_different_page(1)
-        add_link_to_json_output('first', first_page_uri)
+        add_link_to_json_output("first", first_page_uri)
 
         add_previous_page_link if current_page_is_not_the_first_page
         add_next_page_link if current_page_is_not_the_last_page
@@ -60,13 +58,13 @@ module Grape
       def add_next_page_link
         next_or_last_page_number = [resource.total_pages, resource.current_page.succ].min
         next_page_uri = build_query_for_different_page(next_or_last_page_number)
-        add_link_to_json_output('next', next_page_uri)
+        add_link_to_json_output("next", next_page_uri)
       end
 
       def add_previous_page_link
         first_or_previous_page_number = [1, resource.current_page.pred].max
         prev_page_uri = build_query_for_different_page(first_or_previous_page_number)
-        add_link_to_json_output('prev', prev_page_uri)
+        add_link_to_json_output("prev", prev_page_uri)
       end
 
       def build_query_for_different_page(query)
@@ -82,7 +80,7 @@ module Grape
       end
 
       def add_link_to_json_output(link_name, uri)
-        json_output['links'][link_name] = uri.to_s
+        json_output["links"][link_name] = uri.to_s
       end
 
       def resource_class
@@ -126,13 +124,13 @@ module Grape
 
       def resource_serialized
         @resource_serialized ||= JSONAPI::ResourceSerializer
-                                 .new(resource_class, jsonapi_options)
-                                 .serialize_to_hash(resource_instances)
+          .new(resource_class, jsonapi_options)
+          .serialize_to_hash(resource_instances)
       end
 
       def jsonapi_options
         @json_api_options ||= build_options_from_endpoint
-                              .merge!(env['jsonapi_options'] || {})
+          .merge!(env["jsonapi_options"] || {})
       end
 
       def original_uri
@@ -144,7 +142,7 @@ module Grape
       end
 
       def uri_with_page_number(page_number)
-        original_query.merge('page[number]' => page_number)
+        original_query.merge("page[number]" => page_number)
       end
 
       def build_query(params)
@@ -154,14 +152,12 @@ module Grape
           else
             v.nil? ? k : "#{k}=#{v}"
           end
-        end.join('&')
+        end.join("&")
       end
 
       def build_options_from_endpoint
         options = {}
-        if env['HTTP_ORIGIN']
-          options[:base_url] = env['HTTP_ORIGIN']
-        end
+        options[:base_url] = env["HTTP_ORIGIN"] if env["HTTP_ORIGIN"]
         options
       end
 
@@ -193,7 +189,7 @@ module Grape
       end
 
       def blank_resource_response(jsonapi_options, resource)
-        return nil unless resource.blank?
+        return nil if resource.present?
 
         blank_return = {}
         blank_return[:data] = resource.respond_to?(:to_ary) ? [] : {}
