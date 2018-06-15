@@ -18,10 +18,8 @@ module Grape
     end
 
     def json_api_response_object(route)
-      codes = (route.http_codes || route.options[:failure] || [])
-
-      codes = apply_success_codes(route) + codes
-      codes.map! { |x| x.is_a?(Array) ? { code: x[0], message: x[1], model: x[2] } : x }
+      codes = http_codes_from_route(route)
+      codes.map! { |x| x.is_a?(Array) ? { code: x[0], message: x[1], model: x[2], examples: x[3] } : x }
 
       codes.each_with_object({}) do |this_http_code, all_responses|
         this_http_code[:message] ||= ""
